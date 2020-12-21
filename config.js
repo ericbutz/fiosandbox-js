@@ -1,6 +1,6 @@
-const TESTURL = 'http://localhost:8889'
+//const TESTURL = 'http://localhost:8889'
 //const TESTURL = 'http://testnet.fioprotocol.io'
-//const TESTURL = 'https://fio.greymass.com' //Mainnet
+const TESTURL = 'https://fio.greymass.com' //Mainnet
 
 
 const DEVTOOLSDIR = '../fio.devtools'

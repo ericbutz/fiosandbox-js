@@ -4,6 +4,7 @@ const {newUser} = require('../utils.js');
 const {FIOSDK } = require('@fioprotocol/FIOSDK')
 config = require('../config.js');
 const rp = require('request-promise');
+const { arrayify } = require('tslint/lib/utils');
 
 before(async () => {
 
@@ -28,7 +29,44 @@ function callFioApi(apiCall, JSONObject, fiourl) {
   }));
 };
 
+const bps = ["https://fio.greymass.com:443", "https://fio.zenblocks.io:443", "https://api.fio.alohaeos.com:443", "https://fio-mainnet.eosblocksmith.io:443", "https://fio.eu.eosamsterdam.net:443", "https://fio.eosdac.io:443", "http://fioapi.nodeone.io:6881", "https://fio.acherontrading.com:443", "https://fio.eos.barcelona:443", "https://fio.eosusa.news:443", "https://fio.eosargentina.io:443", "https://api.fio.currencyhub.io:443", "https://fio.eoscannon.io:443", "https://fio.eossweden.org:443", "https://fio.maltablock.org:443", "https://api.fio.eosdetroit.io:443", "https://fio.eosdublin.io:443", "https://fio.eosphere.io:443", "https://fio.cryptolions.io:443"]
+
 describe(`Getpubaddress mainnet test`, () => {
+
+  it.only('getpubaddress', async () => {
+    bps.forEach(bp => {
+      //console.log(bp);
+      try {
+        const json = {
+          fio_address: 'ericbutz@guarda',
+          chain_code: "FIO",
+          token_code: "FIO"
+        }
+        fiourl = bp + '/v1/chain/';
+        //result = await callFioApi("get_pub_address", json, fiourl);
+
+        var options = {
+          method: "XPOST",
+          uri: fiourl + 'get_pub_address',
+          body: json,
+          json: true // Automatically stringifies the body to JSON
+        };
+
+      rp(options)
+          .then(function (body){
+              console.log(bp + ': ', body);
+              //resolve(body);
+          }).catch(function(ex) {
+              console.log(bp + ' error: ', ex);
+          });
+
+        //console.log('result: ', result);
+      } catch (err) {
+        console.log('Error', err);
+        expect(err).to.equal(null);
+      }
+    });
+  })
 
   it('getpubaddress from https://fio.eu.eosamsterdam.net/v1/chain/', async () => {
     try {
