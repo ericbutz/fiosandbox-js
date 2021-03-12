@@ -6,11 +6,11 @@ const httpEndpoint = 'http://testnet.fioprotocol.io'
 
 // Create keypair on Testnet monitor and fund from faucet. 
 const user = {
-  privateKey: '',
-  publicKey: '',
-  account: '',
-  domain: '',  // The domain you want to register
-  address: ''  // The address you want to register
+  privateKey: '5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a',
+  publicKey: 'FIO6TWRA6o5UNeMVwG8oGxedvhizd8UpfGbnGKaXEiPH2kUWEPiEb',
+  account: 'ifnxuprs2uxv',
+  domain: 'fiotestnet', 
+  address: 'etest6@fiotestnet' 
 }
 
 const fioAddPublicAddress = async () => {
@@ -57,6 +57,20 @@ const fioAddPublicAddress = async () => {
   abiMap = new Map()
   tokenRawAbi = await (await fetch(httpEndpoint + '/v1/chain/get_raw_abi', {body: `{"account_name": "fio.address"}`, method: 'POST'})).json()
   abiMap.set('fio.address', tokenRawAbi)
+
+   /**
+    abiMap:
+
+    Map {
+      'fio.address' => { 
+        account_name: 'fio.address',
+        code_hash: '0aacfee458bee8aa4ba6773bfcf05f9d3565a12e2ea03dfa4124aa32672d6948',
+        abi_hash: '0dca0ca50be70bb04a84c2494e3eecdf72c083498a3acdbe0ed7ebc4a89d8ad9',
+        abi: 'DmVvc2lvOjphYmkvMS4wABMHZmlvbmFtZQAJAmlkBnVpbnQ2NAR... etc ...FpbgBANTJPTREyA2k2NAEHYWNjb3VudAEGdWludDY0CmVvc2lvX25hbWUAAAAA=' 
+      } 
+    }
+
+  */
  
   var privateKeys = [user.privateKey];
   
@@ -69,12 +83,21 @@ const fioAddPublicAddress = async () => {
     textEncoder: new TextEncoder()
   });
 
+  /**
+    tx:  
+    { signatures: [ 'SIG_K1_KkxZUPZucyD8kV54S4WYuoYPLGMNZUky8nuSzHDmhdHihns42UrEX9TKwqJPmqLqA2GRt4hpdLi4bAW6J1oETozr2WJFnT' ],
+      compression: 0,
+      packed_context_free_data: '',
+      packed_trx: 'fe3a3160aad4a829196f0000000001003056372503a85b0000c6eaa664523201b0bb16f856dde77200000000a8ed32326a116574657374364066696f746573746e657402034243480342434818626974636f696e636173683a617364666173646661736466044441534804444153480c6173646661736466617364660046c32300000000b0bb16f856dde7720e726577617264734077616c6c657400' 
+    }
+  */
+
   pushResult = await fetch(httpEndpoint + '/v1/chain/add_pub_address', {
       body: JSON.stringify(tx),
       method: 'POST',
   });
   
-  json = await pushResult.json();
+  //json = await pushResult.json();
 
   if (json.transaction_id) {
     console.log('Success. Transaction ID: ', json.transaction_id);
@@ -86,7 +109,5 @@ const fioAddPublicAddress = async () => {
 
 };
 
-fioRegisterDomain();
-fioRegisterAddress();
 fioAddPublicAddress();
 
