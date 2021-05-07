@@ -55,11 +55,11 @@ const fioAddPublicAddress = async () => {
   expiration = timeInISOString.substr(0, timeInISOString.length - 1);
   
   transaction2 = {
-    expiration: '2021-04-30T22:30:57.811',
-    //ref_block_num: blockInfo.block_num & 0xffff,
-    ref_block_num: 54473,
-    //ref_block_prefix: blockInfo.ref_block_prefix,
-    ref_block_prefix: 1292004762,
+    //expiration: '2021-04-30T22:30:57.811',
+    ref_block_num: blockInfo.block_num & 0xffff,
+    //ref_block_num: 54473,
+    ref_block_prefix: blockInfo.ref_block_prefix,
+    //ref_block_prefix: 1292004762,
      actions: [{
          account: 'fio.address',
          name: 'addaddress',
@@ -686,7 +686,7 @@ return buffer.asUint8Array();
       method: 'POST',
   });
   
-  /*
+  
   json = await pushResult.json();
 
   if (json.transaction_id) {
@@ -697,7 +697,7 @@ return buffer.asUint8Array();
   } else {
     console.log('Error: ', json)
   }
-*/
+
 };
 
 fioAddPublicAddress();

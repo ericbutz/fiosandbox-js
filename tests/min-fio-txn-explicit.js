@@ -1,5 +1,5 @@
 const { TextEncoder, TextDecoder } = require('text-encoding');
-const fetch = require('node-fetch') // or 'isomorphic-fetch'
+const fetch = require('node-fetch') 
 const { base64ToBinary, arrayToHex } = require('@fioprotocol/fiojs/dist/chain-numeric');
 
 var ser = require("@fioprotocol/fiojs/dist/chain-serialize");
@@ -38,7 +38,7 @@ const transaction = {
   }]
 };
 
-const serializeTransaction = async () => {
+const fioPushTxn = async () => {
  
   const textDecoder = new TextDecoder();
   const textEncoder = new TextEncoder();
@@ -98,38 +98,24 @@ const serializeTransaction = async () => {
     transaction_extensions: [],
   }
 
-  //console.log('rawTransaction: ', rawTransaction)
-
-  const buffer3 = new ser.SerialBuffer({ textEncoder, textDecoder });
-  action2.serialize(buffer3, rawTransaction);
-  //console.log('buffer3: ', buffer3)
-  serializedTransaction = buffer3.asUint8Array()
-  //serializedTransaction = arrayToHex(buffer3.asUint8Array())
-  //console.log('serializedTransaction: ', serializedTransaction);
+  // Serialize the transaction
+  const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
+  action2.serialize(buffer2, rawTransaction);
+  serializedTransaction = buffer2.asUint8Array()
 
 
+  /**
+   * Next the serialized transaction must be signed
+   */
 
   const { JsSignatureProvider } = require('@fioprotocol/fiojs/dist/chain-jssig');
-  const { Api, signAllAuthorityProvider } = require('@fioprotocol/fiojs/dist/chain-api');
-
   const signatureProvider = new JsSignatureProvider(['5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a']);
-  //const authorityProvider = signAllAuthorityProvider;
 
-  //const availableKeys = await signatureProvider.getAvailableKeys();
-  //const requiredKeys = await authorityProvider.getRequiredKeys({ transaction, availableKeys });
-  //requiredKeys = ['5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a']
   requiredKeys = ['PUB_K1_6TWRA6o5UNeMVwG8oGxedvhizd8UpfGbnGKaXEiPH2kUZ2LUYm']
   chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e'
-
   serializedContextFreeData = null;
 
-  //console.log('chainId: ', chainId)
-  //console.log('requiredKeys: ', requiredKeys)
-  //console.log('serializedTransaction: ', serializedTransaction)
-  //console.log('serializedContextFreeData: ', serializedContextFreeData)
-
-
-  pushTransactionArgs = await signatureProvider.sign({
+  signedTxn = await signatureProvider.sign({
     chainId: chainId,
     requiredKeys: requiredKeys,
     serializedTransaction: serializedTransaction,
@@ -137,18 +123,66 @@ const serializeTransaction = async () => {
     abis: abi,
   });
 
-  //console.log('pushTransactionArgs: ', pushTransactionArgs)
+  buf1 = Buffer.from(chainId, 'hex')
+  buf2 = Buffer.from(serializedTransaction)
+  buf3 = Buffer.alloc(32) // for serializedContextFreeData
+  newbuf = Buffer.concat([buf1, buf2, buf3])
+
+  
+  const { Ecc } = require("@fioprotocol/fiojs");
+
+  mytest = Ecc.Signature.sign(newbuf, '5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a')
+
+  console.log('mytest: ', mytest.toString())
+
+  const { createHmac } = require('crypto');
+
+  const secret = '5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a';
+  const hash = createHmac('sha256', secret)
+    .update(newbuf)
+    .digest('hex');
+  console.log(hash);
+
+  /*
+
+  const {
+    generateKeyPairSync,
+    createSign,
+    createVerify,
+  } = require('crypto');
+
+  const sign = createSign('SHA256');
+  sign.update('newbuf');
+  sign.end();
+  const signature2 = await sign.sign('5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a', 'hex');
+*/
+  //console.log('mytest: ', signature)
+
+  /*
+  signBuf = Buffer.concat([
+    new Buffer(chainId, 'hex'),
+    new Buffer(serializedTransaction),
+    new Buffer(serializedContextFreeData ?
+      hexToUint8Array(ecc.sha256(serializedContextFreeData)) :
+      new Uint8Array(32)),
+  ]);
+  signatures = requiredKeys.map(function (pub) { return ecc.Signature.sign(signBuf, _this.keys.get(chain_numeric_1.convertLegacyPublicKey(pub))).toString(); });
+*/
+
+  /**
+   * Last, both the serialized transaction and the signature are sent to push_transaction
+   */
 
   const txn = {
-    signatures: pushTransactionArgs.signatures,
+    signatures: signedTxn.signatures,
     compression: 0,
     packed_context_free_data: arrayToHex(serializedContextFreeData || new Uint8Array(0)),
-    packed_trx: arrayToHex(pushTransactionArgs.serializedTransaction)
+    packed_trx: arrayToHex(serializedTransaction)
   }
 
   console.log('txn: ', txn)
 
 };
 
-serializeTransaction();
+fioPushTxn();
 

@@ -1,5 +1,5 @@
 const { TextEncoder, TextDecoder } = require('text-encoding');
-const fetch = require('node-fetch') // or 'isomorphic-fetch'
+const fetch = require('node-fetch') 
 const { base64ToBinary, arrayToHex } = require('@fioprotocol/fiojs/dist/chain-numeric');
 
 var ser = require("@fioprotocol/fiojs/dist/chain-serialize");
@@ -38,7 +38,7 @@ const transaction = {
   }]
 };
 
-const serializeTransaction = async () => {
+const fioPushTxn = async () => {
  
   const textDecoder = new TextDecoder();
   const textEncoder = new TextEncoder();
@@ -98,38 +98,24 @@ const serializeTransaction = async () => {
     transaction_extensions: [],
   }
 
-  //console.log('rawTransaction: ', rawTransaction)
-
-  const buffer3 = new ser.SerialBuffer({ textEncoder, textDecoder });
-  action2.serialize(buffer3, rawTransaction);
-  //console.log('buffer3: ', buffer3)
-  serializedTransaction = buffer3.asUint8Array()
-  //serializedTransaction = arrayToHex(buffer3.asUint8Array())
-  //console.log('serializedTransaction: ', serializedTransaction);
+  // Serialize the transaction
+  const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
+  action2.serialize(buffer2, rawTransaction);
+  serializedTransaction = buffer2.asUint8Array()
 
 
+  /**
+   * Next the serialized transaction must be signed
+   */
 
   const { JsSignatureProvider } = require('@fioprotocol/fiojs/dist/chain-jssig');
-  const { Api, signAllAuthorityProvider } = require('@fioprotocol/fiojs/dist/chain-api');
-
   const signatureProvider = new JsSignatureProvider(['5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a']);
-  //const authorityProvider = signAllAuthorityProvider;
 
-  //const availableKeys = await signatureProvider.getAvailableKeys();
-  //const requiredKeys = await authorityProvider.getRequiredKeys({ transaction, availableKeys });
-  //requiredKeys = ['5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a']
   requiredKeys = ['PUB_K1_6TWRA6o5UNeMVwG8oGxedvhizd8UpfGbnGKaXEiPH2kUZ2LUYm']
   chainId = 'b20901380af44ef59c5918439a1f9a41d83669020319a80574b804a5f95cbd7e'
-
   serializedContextFreeData = null;
 
-  //console.log('chainId: ', chainId)
-  //console.log('requiredKeys: ', requiredKeys)
-  //console.log('serializedTransaction: ', serializedTransaction)
-  //console.log('serializedContextFreeData: ', serializedContextFreeData)
-
-
-  pushTransactionArgs = await signatureProvider.sign({
+  signedTxn = await signatureProvider.sign({
     chainId: chainId,
     requiredKeys: requiredKeys,
     serializedTransaction: serializedTransaction,
@@ -137,18 +123,34 @@ const serializeTransaction = async () => {
     abis: abi,
   });
 
-  //console.log('pushTransactionArgs: ', pushTransactionArgs)
+  /**
+   * Last, both the serialized transaction and the signature are sent to push_transaction
+   */
 
   const txn = {
-    signatures: pushTransactionArgs.signatures,
+    signatures: signedTxn.signatures,
     compression: 0,
     packed_context_free_data: arrayToHex(serializedContextFreeData || new Uint8Array(0)),
-    packed_trx: arrayToHex(pushTransactionArgs.serializedTransaction)
+    packed_trx: arrayToHex(serializedTransaction)
   }
 
   console.log('txn: ', txn)
 
+  pushResult = await fetch(httpEndpoint + '/v1/chain/add_pub_address', {
+    body: JSON.stringify(txn),
+    method: 'POST',
+  });
+
+  if (pushResult.transaction_id) {
+    console.log('Success. Transaction ID: ', pushResult.transaction_id);
+    console.log('Full Transaction: ', pushResult);
+  } else if (pushResult.code) {
+    console.log('Error: ', pushResult.error);
+  } else {
+    console.log('Error: ', pushResult)
+  }
+
 };
 
-serializeTransaction();
+fioPushTxn();
 
