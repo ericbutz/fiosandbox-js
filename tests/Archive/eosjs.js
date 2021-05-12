@@ -6,15 +6,15 @@ const { TextEncoder, TextDecoder } = require('util');
 
 
 const user = {
-    privateKey: '5JPBUUHviZFJYDowyNrDzo7mpAeDo8VWttf3UvWpCCedtjJwjgu',
-    publicKey: 'FIO57p2FGkDtgftg9Pj2VYcbmw1Dk3wz7ZkokoamrzHj2xQjmvPB2',
-    account: 'yzuxhtxtwhlk',
+    privateKey: '',
+    publicKey: '',
+    account: '',
     domain: '',  // The domain you want to register
     address: ''  // The address you want to register
   }
 
 
-const privateKey = '5JPBUUHviZFJYDowyNrDzo7mpAeDo8VWttf3UvWpCCedtjJwjgu'; // replace with "bob" account private key
+const privateKey = ''; // replace with "bob" account private key
 /* new accounts for testing can be created by unlocking a cleos wallet then calling: 
  * 1) cleos create key --to-console (copy this privateKey & publicKey)
  * 2) cleos wallet import 

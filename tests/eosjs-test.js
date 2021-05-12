@@ -5,15 +5,15 @@ const fetch = require('node-fetch');
 const { TextEncoder, TextDecoder } = require('util');
 
 const user = {
-    privateKey: '5JuH9fCXmU3xbj8nRmhPZaVrxxXrdPaRmZLW1cznNTmTQR2Kg5Z',
-    publicKey: 'FIO7bxrQUTbQ4mqcoefhWPz1aFieN4fA9RQAiozRz7FrUChHZ7Rb8',
-    account: '5kmx4qbqlpld',
-    domain: 'mytest',  // The domain you want to register
+    privateKey: '',
+    publicKey: '',
+    account: '',
+    domain: '',  // The domain you want to register
     address: ''  // The address you want to register
   }
 
-// FIO7bxrQUTbQ4mqcoefhWPz1aFieN4fA9RQAiozRz7FrUChHZ7Rb8
-const privateKey = '5JuH9fCXmU3xbj8nRmhPZaVrxxXrdPaRmZLW1cznNTmTQR2Kg5Z'; // replace with "bob" account private key
+
+const privateKey = ''; // replace with "bob" account private key
 /* new accounts for testing can be created by unlocking a cleos wallet then calling: 
  * 1) cleos create key --to-console (copy this privateKey & publicKey)
  * 2) cleos wallet import 
