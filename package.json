@@ -6,6 +6,7 @@
         "@fioprotocol/fiosdk": "github:fioprotocol/fiosdk_typescript#develop",
         "child_process": "",
         "cors-tester": "^0.1.1",
+        "crypto": "^1.0.1",
         "request": "^2.34.0",
         "request-promise": "",
         "semver": "^7.1.1",

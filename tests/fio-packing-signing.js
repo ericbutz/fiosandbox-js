@@ -6,11 +6,11 @@ const httpEndpoint = 'http://testnet.fioprotocol.io'
 
 // Create keypair on Testnet monitor and fund from faucet. 
 const user = {
-  privateKey: '5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a',
-  publicKey: 'FIO6TWRA6o5UNeMVwG8oGxedvhizd8UpfGbnGKaXEiPH2kUWEPiEb',
-  account: 'ifnxuprs2uxv',
-  domain: 'fiotestnet', 
-  address: 'etest6@fiotestnet' 
+  privateKey: '',
+  publicKey: '',
+  account: '',
+  domain: '', 
+  address: '' 
 }
 
 const fioAddPublicAddress = async () => {
