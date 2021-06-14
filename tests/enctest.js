@@ -50,7 +50,7 @@ console.log('privKey String: ', privKeyStr);
     Results in the following uncompressed Public Key:
 
         04 4b4cc587 e8a11262 84673670 b3f8002b 8bed7ff6 0bb9cefc 35698aba faf12039  // This is the x-coord
-        94ce6c55 05aeae1c 58fa022b e9c95cf3 af13ab35 12aae806 12a563e9 6ad58d5e  // This is the y-coord
+           94ce6c55 05aeae1c 58fa022b e9c95cf3 af13ab35 12aae806 12a563e9 6ad58d5e  // This is the y-coord
 
     This public key contains a prefix 0x04 and the x and y coordinates on the elliptic curve secp256k1, respectively.
 */
@@ -146,6 +146,40 @@ console.log('publicKey compressed: ', publicKeyComp.toString('hex'))
     6. Add the 4 checksum bytes to the extended key from step 2.
     8000000000000000000000000000000000000000000000000000000000000000000565fba7
     7. Base58 encode the binary data from step 6.
+
+
+    Here is what I had in devhub:
+
+### Converting a raw private key to WIF
+
+1.  A fake raw private key of all zeros is used. This is 32 bytes long (shown here as hex).
+
+	`0000000000000000000000000000000000000000000000000000000000000000`
+
+2. Add a 0x80 byte in front. This byte represents the Bitcoin mainnet. FIO uses the same version byte. When encoded the version byte helps to identify this as a private key. **Unlike Bitcoin, EOS always uses compressed public keys (derived from a private key) and therefore does not suffix the private key with a 0x01 byte.**
+
+	`800000000000000000000000000000000000000000000000000000000000000000`
+
+3. Perform a binary SHA-256 hash on the versioned key.
+
+	`ce145d282834c009c24410812a60588c1085b63d65a7effc2e0a5e3a2e21b236`
+
+4. Perform a binary SHA-256 hash on result of SHA-256 hash.
+
+	`0565fba7ebf8143516e0222d7950c28589a34c3ee144c3876ceb01bfb0e9bb70`
+
+5. Take the first 4 bytes of the second SHA-256 hash, this is the checksum.
+
+	`0565fba7`
+
+6. Add the 4 checksum bytes to the versioned key from step 2.
+
+	`8000000000000000000000000000000000000000000000000000000000000000000565fba7`
+
+7. Base58 encode the binary data from step 6.
+
+	`5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAbuatmU`
+
 */
 
 //privKeyStr = '0000000000000000000000000000000000000000000000000000000000000000'
@@ -170,30 +204,6 @@ console.log('privKeyWif4: ', privKeyWif4.toString('hex'));
 const base58 = require('bs58')
 privKeyWif5 = base58.encode(privKeyWif4)
 console.log('privKeyWif5: ', privKeyWif5);
-
-// The Public Keys are likewise encoded in WIF format, but with the FIO prefix added to them.
-
-pubKeyStr = publicKeyComp.toString('hex')
-prefix80 = '80'
-console.log('pubKeyStr: ', pubKeyStr);
-pubKeyWif1 = prefix80.concat(pubKeyStr);
-pubKeyWif1 = Buffer.from(pubKeyWif1, 'hex')
-
-pubKeyWif2 = createHash('sha256').update(pubKeyWif1).digest() //.toString('hex');
-console.log('pubKeyWif2: ', pubKeyWif2.toString('hex'));
-
-pubKeyWif3 = createHash('sha256').update(pubKeyWif2).digest() //.toString('hex');
-console.log('pubKeyWif3: ', pubKeyWif3.toString('hex'));
-
-checksum = pubKeyWif3.slice(0,4)
-console.log('checksum: ', checksum.toString('hex'));
-
-pubKeyWif4 = Buffer.concat([pubKeyWif1,checksum])
-console.log('pubKeyWif4: ', pubKeyWif4.toString('hex'));
-//pubKeyWif4 = Buffer.from(pubKeyWif4)
-
-pubKeyWif5 = base58.encode(pubKeyWif4)
-console.log('pubKeyWif5: ', pubKeyWif5);
 
 /**
     Address generation

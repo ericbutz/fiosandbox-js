@@ -8,22 +8,12 @@ const fetchJson = async (uri, opts = {}) => {
 //const baseUrl = 'http://testnet.fioprotocol.io/v1/'
 const baseUrl = 'http://localhost:8889/v1/'
 
-// Create keypair on Testnet monitor and fund from faucet. 
-/*
 const user = {
-  privateKey: '5KUDbyT8y9TrKqUmjtBgU3q3jSdr6iB9AwGL7Ckiux5gThrTY8F',
-  publicKey: 'FIO7xSZcwyrhbSc6StgCbwpyQKfhewEUCjXkMRKyqDCKMvEqT3arN',
-  account: 'ojqvu4snzuxa',
-  domain: 'mytestdomain',  // The domain you want to register
-  address: 'mytestaddress@mytestdomain'  // The address you want to register
-}
-*/
-const user = {
-  privateKey: '5JZLXywpLuVBDfD64iLCaJawydHs7S3tnsPthPyP3bpvUYZfNv9',
-  publicKey: 'FIO7nNonLMPPrz42AtmM9oJFXqE7fpzA5AWjMCkeMYRycQq13qACf',
-  account: 'xplbzamym1pt',
-  domain: 'mytestdomain28',  // The domain you want to register
-  address: 'mytestaddress22@mytestdomain28'  // The address you want to register
+  privateKey: '',
+  publicKey: '',
+  account: '',
+  domain: '',  // The domain you want to register
+  address: ''  // The address you want to register
 }
 
 const userSdk = new FIOSDK(
