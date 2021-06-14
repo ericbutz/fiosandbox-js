@@ -60,7 +60,7 @@ const fioPushTxn = async () => {
     }]
   };
 
- 
+
   const textDecoder = new TextDecoder();
   const textEncoder = new TextEncoder();
 
@@ -80,13 +80,13 @@ const fioPushTxn = async () => {
   rawAbi = await (await fetch(httpEndpoint + '/v1/chain/get_raw_abi', { body: `{"account_name": "fio.address"}`, method: 'POST' })).json()
   const abi = base64ToBinary(rawAbi.abi);
   //console.log('abi: ', abi)
- 
+
   // Get a Map of all the types from fio.address
   var typesFioAddress = ser.getTypesFromAbi(ser.createInitialTypes(), abiFioAddress.abi);
 
   // Get the addaddress action type
   const actionAddaddress = typesFioAddress.get('addaddress');
-  
+
   // Serialize the actions[] "data" field (This example assumes a single action, though transactions may hold an array of actions.)
   const buffer = new ser.SerialBuffer({ textEncoder, textDecoder });
   actionAddaddress.serialize(buffer, transaction.actions[0].data);
@@ -110,7 +110,7 @@ const fioPushTxn = async () => {
   const action2 = typesTransaction.get('transaction');
 
   rawTransaction = {
-    ...transaction,  
+    ...transaction,
     max_net_usage_words: 0,
     max_cpu_usage_ms: 0,
     delay_sec: 0,

@@ -8,7 +8,7 @@ let user1
 
 //Testnet Account
 before(async () => {
-  user1 = await existingUser('ylecmt24ixuj', '5J7Jx7FLrkjMrMgizSBuEDuUvcj4XaVRoc3vVwLsHhprGXpGeBz', 'FIO5N9wfnhsHaoE9g5BU6FpRaQLBnjnrPtqJLhdMpi8WZM1tQfWQ6', 'edge', 'eric1bundle@edge');  //caccount, cprivateKey, cpublicKey, cdomain=null, caddress=null
+  user1 = await existingUser('', '', '', '', '');  //caccount, cprivateKey, cpublicKey, cdomain=null, caddress=null
 })
 
 describe('Use up bundles', () => {
