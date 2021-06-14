@@ -93,9 +93,9 @@ const fioPushTxn = async () => {
   serializedData = arrayToHex(buffer.asUint8Array())
 
   // Get the actions parameter from the transaction and replace the data field with the serialized data field
-  rawAction = transaction.actions[0]
-  rawAction = {
-    ...rawAction,
+  serializedAction = transaction.actions[0]
+  serializedAction = {
+    ...serializedAction,
     data: serializedData
   };
 
@@ -107,7 +107,7 @@ const fioPushTxn = async () => {
   var typesTransaction = ser.getTypesFromAbi(ser.createInitialTypes(), abiMsig.abi)
 
   // Get the transaction action type
-  const action2 = typesTransaction.get('transaction');
+  const txnaction = typesTransaction.get('transaction');
 
   rawTransaction = {
     ...transaction,
@@ -115,13 +115,13 @@ const fioPushTxn = async () => {
     max_cpu_usage_ms: 0,
     delay_sec: 0,
     context_free_actions: [],
-    actions: [rawAction],     //Actions have to be an array
+    actions: [serializedAction],     //Actions have to be an array
     transaction_extensions: [],
   }
 
   // Serialize the transaction
   const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
-  action2.serialize(buffer2, rawTransaction);
+  txnaction.serialize(buffer2, rawTransaction);
   serializedTransaction = buffer2.asUint8Array()
 
 
@@ -159,14 +159,14 @@ const fioPushTxn = async () => {
     method: 'POST',
   });
 
-  json = await pushResult.json()
+  jsonResult = await pushResult.json()
 
-  if (json.transaction_id) {
-    console.log('Success. \nTransaction: ', json);
-  } else if (json.code) {
-    console.log('Error: ', json.error);
+  if (jsonResult.transaction_id) {
+    console.log('Success. \nTransaction: ', jsonResult);
+  } else if (jsonResult.code) {
+    console.log('Error: ', jsonResult.error);
   } else {
-    console.log('Error: ', json)
+    console.log('Error: ', jsonResult)
   }
 
 };
