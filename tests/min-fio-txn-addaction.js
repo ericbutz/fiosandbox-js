@@ -44,6 +44,8 @@ const fioPushTxn = async () => {
   timePlusTen = currentDate.getTime() + 10000;
   timeInISOString = (new Date(timePlusTen)).toISOString();
   expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+  console.log('expiration: ', expiration)
+  console.log('chainId: ', chainId)
 
   transaction = {
     expiration,
@@ -59,6 +61,11 @@ const fioPushTxn = async () => {
       data: data
     }]
   };
+
+  console.log('transaction: ', transaction)
+  console.log('actions: ', transaction.actions)
+  console.log('authorization: ', transaction.actions[0].authorization)
+  console.log('addresses: ', transaction.actions[0].data.public_addresses)
 
 
   const textDecoder = new TextDecoder();
@@ -86,12 +93,32 @@ const fioPushTxn = async () => {
 
   // Get the addaddress action type
   const actionAddaddress = typesFioAddress.get('addaddress');
+  console.log('actionAddaddress', actionAddaddress)
 
   // Serialize the actions[] "data" field (This example assumes a single action, though transactions may hold an array of actions.)
   const buffer = new ser.SerialBuffer({ textEncoder, textDecoder });
   actionAddaddress.serialize(buffer, transaction.actions[0].data);
+  //console.log('buffer.asUint8Array()', buffer.asUint8Array())
   serializedData = arrayToHex(buffer.asUint8Array())
+  //console.log('serializedData', serializedData)
 
+  /*
+  // 4. Perform a binary SHA-256 hash on the versioned key.
+  console.log('data: ', transaction.actions[0].data.toString('hex'))
+  var createHash = require('create-hash')
+  var hash = createHash('sha256')
+  myhash = hash.update('some string').digest()
+  console.log('myhash: ', myhash)
+  
+  hexhash = myhash.toString('hex')
+  console.log('hexhash: ', hexhash)
+  //privateKey = createHash('sha256').update(transaction.actions[0].data).digest()
+  //console.log('Raw private key sha256 encoded x 1: ', privateKey.toString('hex'))
+  hash.end()
+  hash.read()
+*/
+  
+  
   // Get the actions parameter from the transaction and replace the data field with the serialized data field
   serializedAction = transaction.actions[0]
   serializedAction = {
@@ -153,13 +180,16 @@ const fioPushTxn = async () => {
     packed_context_free_data: arrayToHex(serializedContextFreeData || new Uint8Array(0)),
     packed_trx: arrayToHex(serializedTransaction)
   }
+  console.log('txn: ', txn)
+  console.log('stringify txn: ', JSON.stringify(txn))
 
   pushResult = await fetch(httpEndpoint + '/v1/chain/push_transaction', {
     body: JSON.stringify(txn),
     method: 'POST',
   });
 
-  jsonResult = await pushResult.json()
+  
+  //jsonResult = await pushResult.json()
 
   if (jsonResult.transaction_id) {
     console.log('Success. \nTransaction: ', jsonResult);
