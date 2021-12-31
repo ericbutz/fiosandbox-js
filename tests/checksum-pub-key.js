@@ -1,7 +1,6 @@
 /**
     FIO private keys (like EOS private keys) are WIF encoded.
-    This code demonstrates how to validate a FIO private key
-    To get the raw private key from an FIO private key:
+    This code demonstrates how to validate a FIO public key:
 
 
     1. Start with a FIO Public Key Key.
