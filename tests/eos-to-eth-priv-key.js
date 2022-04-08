@@ -2,6 +2,7 @@
 
 const ecc = require('eosjs-ecc');
 const eth = require('ethereumjs-util');
+const base58 = require('bs58');
 
 let ethereumPrivateKey = '';
 
@@ -19,3 +20,8 @@ if (eth.isValidPrivate(Buffer.from(ethereumPrivateKey, 'hex'))) {
 } else {
   console.log("Invalid Ethereum Private Key")
 }
+
+
+//privateKey = base58.decode(convertedEOSPrivateKey);
+
+//console.log(`Back to ETH Private Key: ${privateKey}`);

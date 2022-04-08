@@ -80,14 +80,13 @@ const fioPushTxn = async () => {
 
   // 2. Serialize the entire transaction
 
-  // The transaction struct is in eosio.msig.abi
   abiMsig = await (await fetch(httpEndpoint + '/v1/chain/get_abi', { body: `{"account_name": "eosio.msig"}`, method: 'POST' })).json()
 
-  var typesMsig = ser.getTypesFromAbi(ser.createInitialTypes(), abiMsig.abi)
+  var types33 = ser.getTypesFromAbi(ser.createInitialTypes(), abiMsig.abi)
 
-  const structTransaction = typesMsig.get('transaction');
-  //console.log('structTransaction: ', structTransaction)
-  //console.log('header: ', typesMsig.get('transaction_header'))
+  const action2 = types33.get('transaction');
+  //console.log('action2: ', action2)
+  //console.log('header: ', types33.get('transaction_header'))
 
   rawTransaction = {
     ...transaction,  // The order of this matters! The last items put in overwrite earlier items!
@@ -101,7 +100,7 @@ const fioPushTxn = async () => {
 
   // Serialize the transaction
   const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
-  structTransaction.serialize(buffer2, rawTransaction);
+  action2.serialize(buffer2, rawTransaction);
   serializedTransaction = buffer2.asUint8Array()
 
 
@@ -124,52 +123,6 @@ const fioPushTxn = async () => {
     abis: abi,
   });
 
-  buf1 = Buffer.from(chainId, 'hex')
-  buf2 = Buffer.from(serializedTransaction)
-  buf3 = Buffer.alloc(32) // for serializedContextFreeData
-  newbuf = Buffer.concat([buf1, buf2, buf3])
-
-  
-  const { Ecc } = require("@fioprotocol/fiojs");
-
-  mytest = Ecc.Signature.sign(newbuf, '5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a')
-
-  console.log('mytest: ', mytest.toString())
-
-  const { createHmac } = require('crypto');
-
-  const secret = '5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a';
-  const hash = createHmac('sha256', secret)
-    .update(newbuf)
-    .digest('hex');
-  console.log(hash);
-
-  /*
-
-  const {
-    generateKeyPairSync,
-    createSign,
-    createVerify,
-  } = require('crypto');
-
-  const sign = createSign('SHA256');
-  sign.update('newbuf');
-  sign.end();
-  const signature2 = await sign.sign('5KNMbAhXGTt2Leit3z5JdqqtTbLhxWNf6ypm4r3pZQusNHHKV7a', 'hex');
-*/
-  //console.log('mytest: ', signature)
-
-  /*
-  signBuf = Buffer.concat([
-    new Buffer(chainId, 'hex'),
-    new Buffer(serializedTransaction),
-    new Buffer(serializedContextFreeData ?
-      hexToUint8Array(ecc.sha256(serializedContextFreeData)) :
-      new Uint8Array(32)),
-  ]);
-  signatures = requiredKeys.map(function (pub) { return ecc.Signature.sign(signBuf, _this.keys.get(chain_numeric_1.convertLegacyPublicKey(pub))).toString(); });
-*/
-
   /**
    * Last, both the serialized transaction and the signature are sent to push_transaction
    */
@@ -183,7 +136,99 @@ const fioPushTxn = async () => {
 
   console.log('txn: ', txn)
 
-};
+  /*
+  pushResult = await fetch(httpEndpoint + '/v1/chain/add_pub_address', {
+    body: JSON.stringify(txn),
+    method: 'POST',
+  });
 
+  if (pushResult.transaction_id) {
+    console.log('Success. Transaction ID: ', pushResult.transaction_id);
+    console.log('Full Transaction: ', pushResult);
+  } else if (pushResult.code) {
+    console.log('Error: ', pushResult.error);
+  } else {
+    console.log('Error: ', pushResult)
+  }
+  */
+  //const buffer2 = new ser.SerialBuffer({ textEncoder, textDecoder });
+  //action2.serialize(buffer2, rawTransaction);
+  //serializedTransaction = buffer2.asUint8Array()
+
+  // From above const actionAddaddress = typesFioAddress.get('addaddress');
+
+ 
+  //const fromHexString = hexString =>
+  //  new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+function hexStringToByte(str) {
+  if (!str) {
+    return new Uint8Array();
+  }
+  
+  var a = [];
+  for (var i = 0, len = str.length; i < len; i+=2) {
+    a.push(parseInt(str.substr(i,2),16));
+  }
+  
+  return new Uint8Array(a);
+}
+
+console.log('serializedTransaction: ', serializedTransaction)
+const packed_trx = arrayToHex(serializedTransaction)
+console.log('packed_trx: ', packed_trx)
+
+const byteagain = hexStringToByte(packed_trx)
+console.log('byteagain: ', byteagain)
+
+  const buf = new ser.SerialBuffer({ array: byteagain });
+  const trx = action2.deserialize(buf);
+
+  console.log(trx)
+
+  // decode action data
+  
+  const { account, name, data } = trx.actions[0];
+
+  const bytedata = hexStringToByte(data)
+console.log('bytedata: ', bytedata)
+
+const buf2 = new ser.SerialBuffer({ array: bytedata });
+const trx2 = actionAddaddress.deserialize(buf2);
+
+console.log(trx2)
+
+
+  //const eosioContract = getContract(EOSIO_TOKEN_ABI);
+  //const action = deserializeActionData(eosioContract, account, name, data);
+  //trx.actions[i].data = action;
+
+};
+/*
+function unpackTrx(packedTx) {
+  // decode tx
+  const initialTypes = createInitialTypes();
+  const transactionTypes = getTypesFromAbi(initialTypes, TX_ABI);
+  const txType = transactionTypes.get('transaction');
+  
+  const buf = new SerialBuffer({ array: fromHexString(packedTx) });
+  const trx = txType.deserialize(buf);
+
+  
+
+  // decode action data
+  const eosioContract = getContract(EOSIO_TOKEN_ABI);
+  for (let i = 0; i < trx.actions.length; ++i) {
+    const { account, name, data } = trx.actions[i];
+    const action = deserializeActionData(eosioContract, account, name, data);
+    trx.actions[i].data = action;
+  }
+
+  // tx hash
+  const hash = crypto.createHash('sha256').update(packedTx, 'hex').digest('hex');
+  trx.hash = hash;
+  return trx;
+}
+*/
 fioPushTxn();
 
