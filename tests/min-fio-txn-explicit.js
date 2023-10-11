@@ -66,7 +66,7 @@ const fioPushTxn = async () => {
   // Serialize the actions[] "data" field (This example assumes a single action, though transactions may hold an array of actions.)
   const buffer = new ser.SerialBuffer({ textEncoder, textDecoder });
   actionAddaddress.serialize(buffer, transaction.actions[0].data);
-  serializedData = arrayToHex(buffer.asUint8Array())
+  serializedData = arrayToHex(buffer.asUint8Array()); // This creates a hex "view" of the buffer.
 
   // Get the actions parameter from the transaction and replace the data field with the serialized data field
   rawAction = transaction.actions[0]
@@ -122,7 +122,7 @@ const fioPushTxn = async () => {
     serializedTransaction: serializedTransaction,
     serializedContextFreeData: serializedContextFreeData,
     abis: abi,
-  });
+  });sign
 
   buf1 = Buffer.from(chainId, 'hex')
   buf2 = Buffer.from(serializedTransaction)
